@@ -1,4 +1,4 @@
-const CACHE = "docs-gnc-v1";
+const CACHE = "docs-gnc-facil-cam-v1";
 const ASSETS = [
   "./",
   "./index.html",

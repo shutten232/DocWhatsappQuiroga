@@ -1,11 +1,11 @@
 {
-  "name": "Docs GNC",
+  "name": "Docs GNC (Modo Fácil + Cámara)",
   "short_name": "Docs GNC",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#0b1220",
+  "background_color": "#081022",
+  "theme_color": "#081022",
   "icons": [
     { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }

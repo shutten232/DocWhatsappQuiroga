@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
-  <meta name="theme-color" content="#0b1220" />
+  <meta name="theme-color" content="#081022" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
 
@@ -11,102 +11,272 @@
   <link rel="icon" href="./icon-192.png">
   <link rel="apple-touch-icon" href="./icon-192.png">
 
-  <title>DNI + TV → 1 hoja → WhatsApp</title>
+  <title>Docs GNC (Modo Fácil + Cámara)</title>
 
   <style>
     :root{
-      --bg:#0b1220; --line:#233255; --txt:#e8eefc; --muted:#a9b7d6;
+      --bg:#081022; --line:#2a3a66;
+      --txt:#eef4ff; --muted:#b9c6e4;
       --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b;
-      --btn:#1f2f55; --btn2:#172446; --r:16px;
+      --btn1:#203766; --btn2:#15274c;
+      --r:18px;
+      --fs:19px; --fsSmall:16px; --fsTitle:26px; --fsH2:20px;
+      --btnPadY:16px; --btnPadX:16px;
     }
-    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
-    body{margin:0;background:radial-gradient(1200px 600px at 10% 0%, #162850, transparent),var(--bg);color:var(--txt)}
-    .wrap{max-width:920px;margin:0 auto;padding:16px}
-    h1{margin:0;font-size:18px}
-    .sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
-    .card{margin-top:14px;background:linear-gradient(180deg,#101b33,#0c1427);border:1px solid var(--line);border-radius:var(--r);padding:14px}
-    label{display:block;color:var(--muted);font-size:12px;margin:10px 0 6px}
-    input[type="text"]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0b1220;color:var(--txt);outline:none}
-    input[type="file"]{display:none}
-    .grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:740px){.grid{grid-template-columns:1fr 1fr}}
-    .pCard{border:1px solid var(--line);border-radius:14px;background:rgba(9,14,26,.55);padding:12px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
-    .title{font-weight:950}
-    .pill{padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;white-space:nowrap}
-    .pill.ok{color:var(--ok);border-color:#1f5a3a}
-    .pill.bad{color:var(--bad);border-color:#6b1a1a}
-    .pill.warn{color:var(--warn);border-color:#6b4b10}
-    .btn{
+
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; -webkit-tap-highlight-color: transparent;}
+    body{
+      margin:0;
+      background:radial-gradient(900px 520px at 20% 0%, #1a2e62, transparent), var(--bg);
+      color:var(--txt);
+      font-size:var(--fs);
+    }
+
+    .wrap{max-width:980px;margin:0 auto;padding:16px 14px 28px}
+    .top{
+      display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;
+      padding:14px 14px 10px;
       border:1px solid var(--line);
-      background:linear-gradient(180deg,var(--btn),var(--btn2));
-      color:var(--txt);padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:900
+      border-radius:var(--r);
+      background:linear-gradient(180deg,#0e1c3f,#0a1430);
     }
-    .btn.ok{border-color:#1f5a3a;background:linear-gradient(180deg,#10301e,#081a11)}
-    .btn.danger{border-color:#7a2a2a;background:linear-gradient(180deg,#3b1420,#1a0b12)}
+    h1{margin:0;font-size:var(--fsTitle);letter-spacing:.2px}
+    .sub{margin-top:6px;color:var(--muted);font-size:var(--fsSmall);line-height:1.35}
+    .chip{
+      display:flex;align-items:center;gap:10px;
+      padding:10px 12px;border:1px solid var(--line);border-radius:999px;
+      background:rgba(8,16,34,.55);
+      font-size:var(--fsSmall);
+      user-select:none;
+    }
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--bad);box-shadow:0 0 0 3px rgba(239,68,68,.15)}
+    .dot.ok{background:var(--ok);box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+    .dot.warn{background:var(--warn);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+
+    .card{
+      margin-top:14px;
+      background:linear-gradient(180deg,#0e1a3b,#0a1330);
+      border:1px solid var(--line);
+      border-radius:var(--r);
+      padding:14px;
+    }
+
+    .stepHead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+    .stepTitle{display:flex;align-items:center;gap:10px;font-weight:900;font-size:var(--fsH2);}
+    .stepNum{
+      width:34px;height:34px;border-radius:12px;
+      display:flex;align-items:center;justify-content:center;
+      background:#0b1224;border:1px solid var(--line);
+      font-weight:950;
+    }
+
+    label{display:block;color:var(--muted);font-size:var(--fsSmall);margin:10px 0 8px}
+    input[type="text"]{
+      width:100%;
+      padding:16px 14px;
+      border-radius:14px;
+      border:2px solid #2b3d6a;
+      background:#071026;
+      color:var(--txt);
+      outline:none;
+      font-size:var(--fs);
+    }
+    input[type="text"]:focus{border-color:#4a62a8}
+
+    .btn{
+      border:2px solid #2b3d6a;
+      background:linear-gradient(180deg,var(--btn1),var(--btn2));
+      color:var(--txt);
+      padding:var(--btnPadY) var(--btnPadX);
+      border-radius:16px;
+      cursor:pointer;
+      font-weight:950;
+      font-size:var(--fs);
+      min-height:56px;
+    }
     .btn:disabled{opacity:.55;cursor:not-allowed}
-    .thumb{width:100%;height:170px;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:#0b1220;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .btn.ok{border-color:#1f5a3a;background:linear-gradient(180deg,#10301e,#081a11);}
+    .btn.danger{border-color:#7a2a2a;background:linear-gradient(180deg,#3b1420,#1a0b12);}
+    .btn.ghost{background:transparent;border-color:#3b4f86;}
+
+    .grid{display:grid;grid-template-columns:1fr;gap:14px}
+
+    .pCard{
+      border:2px solid #2b3d6a;border-radius:18px;background:rgba(7,16,38,.55);padding:14px;
+    }
+    .pTop{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .pTitle{font-weight:950;font-size:20px}
+    .pill{
+      padding:8px 12px;border:2px solid #2b3d6a;border-radius:999px;font-weight:900;font-size:16px;
+      user-select:none;background:#071026;
+    }
+    .pill.ok{color:var(--ok);border-color:#1f5a3a}
+    .pill.bad{color:var(--bad);border-color:#7a2a2a}
+    .pill.warn{color:var(--warn);border-color:#6b4b10}
+
+    .thumb{
+      margin-top:12px;width:100%;height:210px;border-radius:16px;border:2px dashed #2b3d6a;background:#06102a;
+      overflow:hidden;display:flex;align-items:center;justify-content:center;
+    }
     .thumb img{width:100%;height:100%;object-fit:cover}
-    .hr{height:1px;background:var(--line);margin:12px 0}
-    .small{color:var(--muted);font-size:12px;line-height:1.35}
+    .hint{color:var(--muted);font-size:var(--fsSmall);line-height:1.35;margin-top:10px}
+
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .actions{display:grid;grid-template-columns:1fr;gap:10px}
+    @media(min-width:740px){ .actions{grid-template-columns:1fr 1fr 1fr 1fr} }
+
+    .hr{height:2px;background:#233255;margin:14px 0;border-radius:99px}
     .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
-    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+    .bigState{font-weight:950;font-size:20px}
+    .stateBox{padding:12px;border-radius:16px;border:2px solid #2b3d6a;background:#071026}
+
+    /* Modal ayuda */
+    .modalBack{position:fixed;inset:0;background:rgba(0,0,0,.55);display:none;align-items:center;justify-content:center;padding:16px;z-index:50}
+    .modal{max-width:560px;width:100%;background:linear-gradient(180deg,#0e1a3b,#0a1330);border:2px solid #2b3d6a;border-radius:18px;padding:14px}
+    .modal h2{margin:0 0 8px;font-size:22px}
+    .list{margin:0;padding-left:20px;color:var(--txt);line-height:1.5}
+    .list li{margin:6px 0}
+
+    /* Modal cámara (forzar trasera) */
+    .camBack{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:center;justify-content:center;padding:12px;z-index:60}
+    .cam{
+      width:100%;max-width:740px;
+      background:linear-gradient(180deg,#0e1a3b,#0a1330);
+      border:2px solid #2b3d6a;border-radius:18px;padding:12px;
+    }
+    .camHead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+    .camTitle{font-weight:950;font-size:20px}
+    .camBox{border:2px solid #2b3d6a;border-radius:16px;overflow:hidden;background:#000;position:relative}
+    video{width:100%;height:auto;display:block}
+    .camHint{color:var(--muted);font-size:var(--fsSmall);margin-top:8px}
+    .camActions{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
+    @media(min-width:740px){ .camActions{grid-template-columns:1fr 1fr 1fr} }
   </style>
 </head>
 
 <body>
   <div class="wrap">
-    <h1>4 fotos → 1 hoja A4 → PDF → WhatsApp</h1>
-    <div class="sub">
-      No se guarda nada. Todo se arma en el celular. PDF final: 1 sola hoja con grilla 2×2.
-      <br>Instalación: Android Chrome → “Instalar app”. iPhone Safari → “Añadir a pantalla de inicio”.
+
+    <div class="top">
+      <div>
+        <h1>Docs GNC</h1>
+        <div class="sub">Saca 4 fotos (DNI + Tarjeta Verde) y se arma 1 PDF. Opcional: Título (va en otra hoja).</div>
+      </div>
+      <div class="chip" id="progressChip">
+        <span class="dot" id="dotProg"></span>
+        <span><b id="progTxt">0/4</b> fotos listas</span>
+      </div>
+      <div class="row" style="width:100%;margin-top:10px">
+        <button class="btn ghost" id="btnHelp">Ayuda</button>
+        <button class="btn" id="btnInstall" style="display:none">Instalar app</button>
+      </div>
     </div>
 
-    <div class="card">
-      <div class="row">
-        <div class="small">Modo app (PWA):</div>
-        <button class="btn" id="btnInstall" style="display:none">Instalar</button>
+    <!-- PASO 1 -->
+    <div class="card" id="step1">
+      <div class="stepHead">
+        <div class="stepTitle"><span class="stepNum">1</span> Escribí el nombre / patente</div>
       </div>
+      <label>Ejemplo: Juan Pérez - ABC123</label>
+      <input id="ref" type="text" placeholder="Nombre + Patente" inputmode="text" />
+      <div class="hint">Tiene que estar lleno para poder generar el PDF.</div>
+    </div>
 
-      <label>Nombre / Patente / Referencia *</label>
-      <input id="ref" type="text" placeholder="Ej: Juan Pérez - ABC123" />
-
-      <div class="hr"></div>
+    <!-- PASO 2 -->
+    <div class="card" id="step2">
+      <div class="stepHead">
+        <div class="stepTitle"><span class="stepNum">2</span> Sacá las fotos</div>
+        <div class="sub" style="margin:0">Siempre abre la cámara trasera (si el celu lo permite). Podés cambiarla.</div>
+      </div>
 
       <div class="grid" id="photos"></div>
 
-      <div class="hr"></div>
-
-      <div class="row">
-        <div>
-          <div class="small" id="state">Faltan fotos.</div>
-          <div class="small">Archivo: <span class="mono" id="fname">—</span></div>
-        </div>
-        <div class="actions">
-          <button class="btn" id="btnBuild" disabled>Generar PDF (1 hoja)</button>
-          <button class="btn ok" id="btnShare" disabled>Compartir PDF</button>
-          <button class="btn" id="btnDownload" disabled>Descargar PDF</button>
-          <button class="btn danger" id="btnReset">Reset</button>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-      <div class="small">
-        “Compartir PDF” depende del celular/navegador. Si no aparece: descargá y adjuntá en WhatsApp como Documento.
+      <div class="hint">
+        Consejo: apoyá el DNI/TV en una mesa clara y evitá sombras.
       </div>
     </div>
+
+    <!-- PASO 3 -->
+    <div class="card" id="step3">
+      <div class="stepHead">
+        <div class="stepTitle"><span class="stepNum">3</span> Generar PDF</div>
+      </div>
+
+      <div class="stateBox">
+        <div class="bigState" id="state">Faltan fotos.</div>
+        <div class="sub" style="margin:6px 0 0">Archivo: <span class="mono" id="fname">—</span></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <div class="actions">
+        <button class="btn ok" id="btnBuild" disabled>Generar PDF</button>
+        <button class="btn ok" id="btnShare" disabled>Enviar por WhatsApp</button>
+        <button class="btn" id="btnDownload" disabled>Descargar PDF</button>
+        <button class="btn danger" id="btnReset">Borrar todo</button>
+      </div>
+
+      <div class="hint">
+        Si “Enviar por WhatsApp” no aparece, usá “Descargar PDF” y adjuntalo en WhatsApp como <b>Documento</b>.
+      </div>
+    </div>
+
+    <!-- Modal ayuda -->
+    <div class="modalBack" id="helpBack" role="dialog" aria-modal="true">
+      <div class="modal">
+        <h2>Cómo se usa</h2>
+        <ol class="list">
+          <li>Escribí <b>Nombre + Patente</b>.</li>
+          <li>Sacá 4 fotos: <b>DNI frente</b>, <b>DNI dorso</b>, <b>TV frente</b>, <b>TV dorso</b>.</li>
+          <li>(Opcional) Sacá foto del <b>Título</b>: va en otra hoja.</li>
+          <li>Tocá <b>Generar PDF</b> y después <b>Enviar por WhatsApp</b>.</li>
+        </ol>
+        <div class="hr"></div>
+        <button class="btn" id="btnCloseHelp">Cerrar</button>
+      </div>
+    </div>
+
+    <!-- Modal cámara -->
+    <div class="camBack" id="camBack" role="dialog" aria-modal="true">
+      <div class="cam">
+        <div class="camHead">
+          <div class="camTitle" id="camTitle">Cámara</div>
+          <button class="btn danger" id="camClose">Cerrar</button>
+        </div>
+
+        <div class="camBox">
+          <video id="camVideo" autoplay playsinline></video>
+        </div>
+        <div class="camHint" id="camHint">Si no aparece imagen, aceptá permisos de cámara.</div>
+
+        <div class="camActions">
+          <button class="btn ghost" id="camSwitch">Cambiar cámara</button>
+          <button class="btn ok" id="camShot">Sacar foto</button>
+          <button class="btn" id="camGallery">Elegir de galería</button>
+        </div>
+
+        <!-- fallback file input -->
+        <input id="camFile" type="file" accept="image/*" />
+      </div>
+    </div>
+
   </div>
 
   <!-- jsPDF -->
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 
   <script>
-    const SLOTS = [
-      { key:"dni_frente",  label:"DNI frente" },
-      { key:"dni_dorso",   label:"DNI dorso" },
-      { key:"tv_frente",   label:"Tarjeta Verde frente" },
-      { key:"tv_dorso",    label:"Tarjeta Verde dorso" }
+    // 4 obligatorias + 1 opcional (Título)
+    const REQUIRED = [
+      { key:"dni_frente",  label:"DNI frente", required:true },
+      { key:"dni_dorso",   label:"DNI dorso", required:true },
+      { key:"tv_frente",   label:"Tarjeta Verde frente", required:true },
+      { key:"tv_dorso",    label:"Tarjeta Verde dorso", required:true }
     ];
+    const OPTIONAL = [
+      { key:"titulo", label:"Título (opcional - hoja aparte)", required:false }
+    ];
+    const SLOTS = [...REQUIRED, ...OPTIONAL];
 
     const $ = (id)=>document.getElementById(id);
 
@@ -119,61 +289,185 @@
     const btnReset = $("btnReset");
     const refInp = $("ref");
 
+    const dotProg = $("dotProg");
+    const progTxt = $("progTxt");
+
+    const helpBack = $("helpBack");
+    $("btnHelp").addEventListener("click", ()=> helpBack.style.display = "flex");
+    $("btnCloseHelp").addEventListener("click", ()=> helpBack.style.display = "none");
+    helpBack.addEventListener("click", (e)=>{ if(e.target === helpBack) helpBack.style.display = "none"; });
+
+    // Cámara modal
+    const camBack = $("camBack");
+    const camVideo = $("camVideo");
+    const camTitle = $("camTitle");
+    const camHint = $("camHint");
+    const camClose = $("camClose");
+    const camSwitch = $("camSwitch");
+    const camShot = $("camShot");
+    const camGallery = $("camGallery");
+    const camFile = $("camFile");
+
     const captured = {}; // key -> { dataUrlJpeg, w, h }
     let pdfBlob = null;
     let pdfUrl = null;
-    let pdfFile = null;
+    let pdfFileObj = null;
 
-    // UI fotos
+    let currentSlotKey = null;
+    let stream = null;
+    let facing = "environment"; // intenta trasera
+    let canUseGUM = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+
+    function stopStream(){
+      if(stream){
+        stream.getTracks().forEach(t=>t.stop());
+        stream = null;
+      }
+      camVideo.srcObject = null;
+    }
+
+    async function startCamera(){
+      stopStream();
+      if(!canUseGUM) throw new Error("No getUserMedia");
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: {
+          facingMode: { ideal: facing },
+          width: { ideal: 1280 },
+          height: { ideal: 720 }
+        },
+        audio: false
+      });
+      camVideo.srcObject = stream;
+      await camVideo.play().catch(()=>{});
+    }
+
+    async function openCamera(slotKey, label){
+      currentSlotKey = slotKey;
+      camTitle.textContent = label;
+      camHint.textContent = "Abriendo cámara…";
+      camBack.style.display = "flex";
+
+      // intenta GUM (fuerza trasera). Si falla: usa selector de archivo (que a veces abre cámara frontal igual…)
+      if(canUseGUM){
+        try{
+          facing = "environment";
+          await startCamera();
+          camHint.textContent = "Cámara trasera (si tu celu la permite).";
+          return;
+        }catch(e){
+          console.warn(e);
+        }
+      }
+      camHint.textContent = "Tu navegador no permite forzar cámara. Usá “Elegir de galería” o la cámara del celular.";
+      // fallback: abre selector
+      camFile.value = "";
+      camFile.click();
+    }
+
+    function closeCamera(){
+      camBack.style.display = "none";
+      currentSlotKey = null;
+      stopStream();
+    }
+
+    camClose.addEventListener("click", closeCamera);
+    camBack.addEventListener("click", (e)=>{ if(e.target === camBack) closeCamera(); });
+
+    camSwitch.addEventListener("click", async ()=>{
+      if(!canUseGUM) return;
+      facing = (facing === "environment") ? "user" : "environment";
+      camHint.textContent = (facing === "environment") ? "Intentando cámara trasera…" : "Cámara frontal…";
+      try{ await startCamera(); }catch(e){ console.warn(e); camHint.textContent = "No se pudo cambiar cámara."; }
+    });
+
+    camShot.addEventListener("click", async ()=>{
+      if(!currentSlotKey) return;
+
+      // captura frame a canvas
+      const v = camVideo;
+      const vw = v.videoWidth || 1280;
+      const vh = v.videoHeight || 720;
+
+      const canvas = document.createElement("canvas");
+      canvas.width = vw;
+      canvas.height = vh;
+      const ctx = canvas.getContext("2d", { alpha:false });
+      ctx.drawImage(v, 0, 0, vw, vh);
+
+      // comprime a JPEG
+      const dataUrlJpeg = canvas.toDataURL("image/jpeg", 0.85);
+      captured[currentSlotKey] = { dataUrlJpeg, w: vw, h: vh };
+      renderSlot(currentSlotKey);
+      invalidatePdf();
+      updateState();
+
+      // si era requerido, baja al próximo requerido que falte
+      focusNextMissingRequired();
+
+      // si era el último requerido, baja a acciones
+      if(requiredOk() === REQUIRED.length){
+        document.getElementById("step3").scrollIntoView({ behavior:"smooth", block:"start" });
+      }
+
+      closeCamera();
+    });
+
+    camGallery.addEventListener("click", ()=>{
+      camFile.value = "";
+      camFile.click();
+    });
+
+    camFile.addEventListener("change", async ()=>{
+      const f = camFile.files && camFile.files[0];
+      if(!f || !currentSlotKey) return;
+      state.textContent = "Procesando foto…";
+      try{
+        const img = await fileToCompressedJpegDataUrl(f, 1600, 0.85);
+        captured[currentSlotKey] = img;
+        renderSlot(currentSlotKey);
+        invalidatePdf();
+        updateState();
+        focusNextMissingRequired();
+      }catch(e){
+        console.error(e);
+      }finally{
+        closeCamera();
+      }
+    });
+
+    // Tarjetas (grandes, simples)
     for(const s of SLOTS){
       const div = document.createElement("div");
       div.className = "pCard";
       div.innerHTML = `
-        <div class="row">
+        <div class="pTop">
           <div>
-            <div class="title">${s.label}</div>
-            <div class="small">Tocá “Sacar foto”.</div>
+            <div class="pTitle">${s.label}</div>
+            <div class="hint" style="margin:6px 0 0">${s.required ? "Obligatorio" : "Opcional"}</div>
           </div>
-          <span class="pill bad" id="st_${s.key}">Falta</span>
+          <span class="pill ${s.required ? "bad" : "warn"}" id="st_${s.key}">${s.required ? "Falta" : "Opcional"}</span>
         </div>
 
-        <div class="row" style="margin-top:10px; justify-content:flex-start">
-          <button class="btn" id="btn_${s.key}">Sacar foto</button>
-          <button class="btn danger" id="rm_${s.key}" disabled>Quitar</button>
-          <input id="file_${s.key}" type="file" accept="image/*" capture="environment" />
+        <div class="row" style="margin-top:12px; justify-content:flex-start">
+          <button class="btn" id="btn_${s.key}" style="flex:1">Sacar foto</button>
+          <button class="btn danger" id="rm_${s.key}" disabled style="min-width:170px">Repetir</button>
         </div>
 
-        <div class="thumb" id="prev_${s.key}">
-          <span class="small">Sin foto</span>
+        <div class="thumb" id="prev_${s.key}" title="Tocar para sacar foto">
+          <span class="hint">Tocar para sacar foto</span>
         </div>
       `;
       photos.appendChild(div);
 
-      const file = $(`file_${s.key}`);
       const btn = $(`btn_${s.key}`);
       const rm  = $(`rm_${s.key}`);
+      const prev = $(`prev_${s.key}`);
 
-      btn.addEventListener("click", ()=>file.click());
-
-      file.addEventListener("change", async ()=>{
-        const f = file.files && file.files[0];
-        if(!f) return;
-
-        state.textContent = "Procesando foto…";
-        try{
-          const img = await fileToCompressedJpegDataUrl(f, 1600, 0.85);
-          captured[s.key] = img;
-          renderSlot(s.key);
-          invalidatePdf();
-        }catch(e){
-          console.error(e);
-        }
-        updateState();
-      });
+      btn.addEventListener("click", ()=> openCamera(s.key, s.label));
+      prev.addEventListener("click", ()=> openCamera(s.key, s.label));
 
       rm.addEventListener("click", ()=>{
         delete captured[s.key];
-        file.value = "";
         renderSlot(s.key);
         invalidatePdf();
         updateState();
@@ -181,35 +475,72 @@
     }
 
     function renderSlot(key){
+      const slot = SLOTS.find(s=>s.key===key);
       const st = $(`st_${key}`);
       const prev = $(`prev_${key}`);
       const rm = $(`rm_${key}`);
       const has = !!captured[key];
 
-      st.textContent = has ? "OK" : "Falta";
-      st.className = `pill ${has ? "ok" : "bad"}`;
+      if(slot.required){
+        st.textContent = has ? "OK" : "Falta";
+        st.className = `pill ${has ? "ok" : "bad"}`;
+      }else{
+        st.textContent = has ? "OK" : "Opcional";
+        st.className = `pill ${has ? "ok" : "warn"}`;
+      }
       rm.disabled = !has;
 
       prev.innerHTML = has
         ? `<img alt="foto" src="${captured[key].dataUrlJpeg}">`
-        : `<span class="small">Sin foto</span>`;
+        : `<span class="hint">Tocar para sacar foto</span>`;
+    }
+
+    function requiredOk(){
+      return REQUIRED.reduce((a,s)=>a + (captured[s.key]?1:0), 0);
+    }
+
+    function updateProgressUI(){
+      const ok = requiredOk();
+      progTxt.textContent = `${ok}/4`;
+      dotProg.className = `dot ${ok===4 ? "ok" : (ok>0 ? "warn" : "")}`;
     }
 
     function updateState(){
       const ref = refInp.value.trim();
-      const okPhotos = SLOTS.every(s => !!captured[s.key]);
+      const okRequired = REQUIRED.every(s => !!captured[s.key]);
 
-      btnBuild.disabled = !(ref && okPhotos);
+      btnBuild.disabled = !(ref && okRequired);
       btnShare.disabled = !pdfBlob;
       btnDownload.disabled = !pdfBlob;
 
-      if(!ref){ state.textContent = "Falta referencia."; return; }
-      if(!okPhotos){
-        const missing = SLOTS.filter(s => !captured[s.key]).map(s=>s.label).join(", ");
+      updateProgressUI();
+
+      if(!ref){
+        state.textContent = "Paso 1: escribí Nombre + Patente.";
+        return;
+      }
+      if(!okRequired){
+        const missing = REQUIRED.filter(s => !captured[s.key]).map(s=>s.label).join(", ");
         state.textContent = "Faltan: " + missing;
         return;
       }
-      state.textContent = "Listo. Generá el PDF (1 hoja).";
+      state.textContent = captured["titulo"]
+        ? "Listo. PDF va a salir en 2 hojas (Título + DNI/TV)."
+        : "Listo. PDF va a salir en 1 hoja (DNI/TV).";
+    }
+
+    function focusNextMissingRequired(){
+      const next = REQUIRED.find(s => !captured[s.key]);
+      if(!next) return;
+      const el = document.getElementById(`btn_${next.key}`);
+      if(el){
+        el.scrollIntoView({ behavior:"smooth", block:"center" });
+        el.animate([
+          { transform:"scale(1)", filter:"brightness(1)" },
+          { transform:"scale(1.02)", filter:"brightness(1.15)" },
+          { transform:"scale(1)", filter:"brightness(1)" }
+        ], { duration:520, iterations:1 });
+      }
     }
 
     function sanitizeName(s){
@@ -223,14 +554,14 @@
 
     function invalidatePdf(){
       pdfBlob = null;
-      pdfFile = null;
+      pdfFileObj = null;
       if(pdfUrl){ URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
       btnShare.disabled = true;
       btnDownload.disabled = true;
       fname.textContent = "—";
     }
 
-    // PDF 1 hoja A4 con 4 fotos (2x2)
+    // PDF: si hay "título" -> hoja 1 full; hoja 2 grilla 2x2 (dni/tv)
     btnBuild.addEventListener("click", async ()=>{
       try{
         btnBuild.disabled = true;
@@ -245,15 +576,42 @@
 
         const pageW = 210, pageH = 297;
         const margin = 8;
-        const gap = 4;
 
-        const headerH = 16;
+        // Hoja Título (si está)
+        if(captured["titulo"]){
+          doc.setFont("helvetica","bold");
+          doc.setFontSize(13);
+          doc.text("Título (hoja aparte)", margin, 10);
+          doc.setFont("helvetica","normal");
+          doc.setFontSize(11);
+          doc.text(`Referencia: ${ref}`, margin, 17);
+
+          const img = captured["titulo"];
+          const boxX = margin, boxY = 22;
+          const boxW = pageW - margin*2;
+          const boxH = pageH - boxY - margin;
+
+          doc.setDrawColor(60);
+          doc.setLineWidth(0.3);
+          doc.rect(boxX, boxY, boxW, boxH);
+
+          const fit = fitRect(img.w, img.h, boxW-4, boxH-4);
+          const cx = boxX + (boxW - fit.w)/2;
+          const cy = boxY + (boxH - fit.h)/2;
+          doc.addImage(img.dataUrlJpeg, "JPEG", cx, cy, fit.w, fit.h, undefined, "FAST");
+
+          doc.addPage("a4", "p");
+        }
+
+        // Hoja DNI/TV (siempre)
+        const gap = 4;
+        const headerH = 18;
         doc.setFont("helvetica","bold");
-        doc.setFontSize(12);
+        doc.setFontSize(13);
         doc.text("Documentación (DNI + Tarjeta Verde)", margin, 10);
         doc.setFont("helvetica","normal");
-        doc.setFontSize(10);
-        doc.text(`Referencia: ${ref}`, margin, 16);
+        doc.setFontSize(11);
+        doc.text(`Referencia: ${ref}`, margin, 17);
 
         const gridX = margin;
         const gridY = margin + headerH;
@@ -262,26 +620,26 @@
 
         const cellW = (gridW - gap) / 2;
         const cellH = (gridH - gap) / 2;
-
-        const labelH = 6;
+        const labelH = 7;
 
         const placements = [
-          { slot: SLOTS[0], x: gridX,               y: gridY               },
-          { slot: SLOTS[1], x: gridX + cellW + gap, y: gridY               },
-          { slot: SLOTS[2], x: gridX,               y: gridY + cellH + gap },
-          { slot: SLOTS[3], x: gridX + cellW + gap, y: gridY + cellH + gap }
+          { slot: REQUIRED[0], x: gridX,               y: gridY               },
+          { slot: REQUIRED[1], x: gridX + cellW + gap, y: gridY               },
+          { slot: REQUIRED[2], x: gridX,               y: gridY + cellH + gap },
+          { slot: REQUIRED[3], x: gridX + cellW + gap, y: gridY + cellH + gap }
         ];
 
         for(const p of placements){
           const img = captured[p.slot.key];
           if(!img) continue;
 
-          doc.setDrawColor(180);
+          doc.setDrawColor(60);
+          doc.setLineWidth(0.3);
           doc.rect(p.x, p.y, cellW, cellH);
 
           doc.setFont("helvetica","bold");
-          doc.setFontSize(9);
-          doc.text(p.slot.label, p.x + 2, p.y + 4.5);
+          doc.setFontSize(10);
+          doc.text(p.slot.label, p.x + 2, p.y + 5);
 
           const ix = p.x + 2;
           const iy = p.y + labelH;
@@ -297,12 +655,14 @@
 
         pdfBlob = doc.output("blob");
         pdfUrl = URL.createObjectURL(pdfBlob);
-        pdfFile = new File([pdfBlob], filename, { type:"application/pdf" });
+        pdfFileObj = new File([pdfBlob], filename, { type:"application/pdf" });
 
         fname.textContent = filename;
-        state.textContent = "PDF listo (1 hoja con las 4 fotos).";
+        state.textContent = "PDF listo. Tocá “Enviar por WhatsApp”.";
         btnShare.disabled = false;
         btnDownload.disabled = false;
+
+        document.getElementById("step3").scrollIntoView({ behavior:"smooth", block:"start" });
 
       }catch(err){
         console.error(err);
@@ -313,29 +673,29 @@
     });
 
     btnShare.addEventListener("click", async ()=>{
-      if(!pdfFile) return;
+      if(!pdfFileObj) return;
 
-      if(navigator.share && navigator.canShare && navigator.canShare({ files:[pdfFile] })){
+      if(navigator.share && navigator.canShare && navigator.canShare({ files:[pdfFileObj] })){
         try{
           await navigator.share({
             title: "Documentación",
-            text: "Adjunto PDF (1 hoja) con DNI y Tarjeta Verde",
-            files: [pdfFile],
+            text: "Adjunto PDF con documentación",
+            files: [pdfFileObj],
           });
         }catch(e){}
         return;
       }
 
-      const msg = encodeURIComponent("Hola, te envío la documentación. Adjunté el PDF como documento.");
+      const msg = encodeURIComponent("Hola. Te envío la documentación. Adjunté el PDF como documento.");
       window.open(`https://wa.me/?text=${msg}`, "_blank");
-      alert("Este navegador no permite compartir archivos directo. Usá 'Descargar PDF' y adjuntalo en WhatsApp como Documento.");
+      alert("Tu celular no permite mandar el archivo directo. Descargá el PDF y adjuntalo en WhatsApp como Documento.");
     });
 
     btnDownload.addEventListener("click", ()=>{
-      if(!pdfUrl || !pdfFile) return;
+      if(!pdfUrl || !pdfFileObj) return;
       const a = document.createElement("a");
       a.href = pdfUrl;
-      a.download = pdfFile.name;
+      a.download = pdfFileObj.name;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -343,14 +703,10 @@
 
     btnReset.addEventListener("click", ()=>{
       refInp.value = "";
-      for(const s of SLOTS){
-        delete captured[s.key];
-        const file = $(`file_${s.key}`);
-        if(file) file.value = "";
-        renderSlot(s.key);
-      }
+      for(const s of SLOTS){ delete captured[s.key]; renderSlot(s.key); }
       invalidatePdf();
       updateState();
+      window.scrollTo({ top: 0, behavior:"smooth" });
     });
 
     refInp.addEventListener("input", ()=>{ invalidatePdf(); updateState(); });
