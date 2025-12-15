@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+  <link rel="manifest" href="./manifest.webmanifest">
+  <link rel="icon" href="./icon-192.png">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+
+  <title>DNI + TV → 1 hoja → WhatsApp</title>
+
+  <style>
+    :root{
+      --bg:#0b1220; --line:#233255; --txt:#e8eefc; --muted:#a9b7d6;
+      --ok:#22c55e; --bad:#ef4444; --warn:#f59e0b;
+      --btn:#1f2f55; --btn2:#172446; --r:16px;
+    }
+    *{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    body{margin:0;background:radial-gradient(1200px 600px at 10% 0%, #162850, transparent),var(--bg);color:var(--txt)}
+    .wrap{max-width:920px;margin:0 auto;padding:16px}
+    h1{margin:0;font-size:18px}
+    .sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.35}
+    .card{margin-top:14px;background:linear-gradient(180deg,#101b33,#0c1427);border:1px solid var(--line);border-radius:var(--r);padding:14px}
+    label{display:block;color:var(--muted);font-size:12px;margin:10px 0 6px}
+    input[type="text"]{width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);background:#0b1220;color:var(--txt);outline:none}
+    input[type="file"]{display:none}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:740px){.grid{grid-template-columns:1fr 1fr}}
+    .pCard{border:1px solid var(--line);border-radius:14px;background:rgba(9,14,26,.55);padding:12px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+    .title{font-weight:950}
+    .pill{padding:6px 10px;border:1px solid var(--line);border-radius:999px;color:var(--muted);font-size:12px;white-space:nowrap}
+    .pill.ok{color:var(--ok);border-color:#1f5a3a}
+    .pill.bad{color:var(--bad);border-color:#6b1a1a}
+    .pill.warn{color:var(--warn);border-color:#6b4b10}
+    .btn{
+      border:1px solid var(--line);
+      background:linear-gradient(180deg,var(--btn),var(--btn2));
+      color:var(--txt);padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:900
+    }
+    .btn.ok{border-color:#1f5a3a;background:linear-gradient(180deg,#10301e,#081a11)}
+    .btn.danger{border-color:#7a2a2a;background:linear-gradient(180deg,#3b1420,#1a0b12)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .thumb{width:100%;height:170px;margin-top:10px;border-radius:12px;border:1px solid var(--line);background:#0b1220;overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .hr{height:1px;background:var(--line);margin:12px 0}
+    .small{color:var(--muted);font-size:12px;line-height:1.35}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>4 fotos → 1 hoja A4 → PDF → WhatsApp</h1>
+    <div class="sub">
+      No se guarda nada. Todo se arma en el celular. PDF final: 1 sola hoja con grilla 2×2.
+      <br>Instalación: Android Chrome → “Instalar app”. iPhone Safari → “Añadir a pantalla de inicio”.
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="small">Modo app (PWA):</div>
+        <button class="btn" id="btnInstall" style="display:none">Instalar</button>
+      </div>
+
+      <label>Nombre / Patente / Referencia *</label>
+      <input id="ref" type="text" placeholder="Ej: Juan Pérez - ABC123" />
+
+      <div class="hr"></div>
+
+      <div class="grid" id="photos"></div>
+
+      <div class="hr"></div>
+
+      <div class="row">
+        <div>
+          <div class="small" id="state">Faltan fotos.</div>
+          <div class="small">Archivo: <span class="mono" id="fname">—</span></div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="btnBuild" disabled>Generar PDF (1 hoja)</button>
+          <button class="btn ok" id="btnShare" disabled>Compartir PDF</button>
+          <button class="btn" id="btnDownload" disabled>Descargar PDF</button>
+          <button class="btn danger" id="btnReset">Reset</button>
+        </div>
+      </div>
+
+      <div class="hr"></div>
+      <div class="small">
+        “Compartir PDF” depende del celular/navegador. Si no aparece: descargá y adjuntá en WhatsApp como Documento.
+      </div>
+    </div>
+  </div>
+
+  <!-- jsPDF -->
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+
+  <script>
+    const SLOTS = [
+      { key:"dni_frente",  label:"DNI frente" },
+      { key:"dni_dorso",   label:"DNI dorso" },
+      { key:"tv_frente",   label:"Tarjeta Verde frente" },
+      { key:"tv_dorso",    label:"Tarjeta Verde dorso" }
+    ];
+
+    const $ = (id)=>document.getElementById(id);
+
+    const photos = $("photos");
+    const state = $("state");
+    const fname = $("fname");
+    const btnBuild = $("btnBuild");
+    const btnShare = $("btnShare");
+    const btnDownload = $("btnDownload");
+    const btnReset = $("btnReset");
+    const refInp = $("ref");
+
+    const captured = {}; // key -> { dataUrlJpeg, w, h }
+    let pdfBlob = null;
+    let pdfUrl = null;
+    let pdfFile = null;
+
+    // UI fotos
+    for(const s of SLOTS){
+      const div = document.createElement("div");
+      div.className = "pCard";
+      div.innerHTML = `
+        <div class="row">
+          <div>
+            <div class="title">${s.label}</div>
+            <div class="small">Tocá “Sacar foto”.</div>
+          </div>
+          <span class="pill bad" id="st_${s.key}">Falta</span>
+        </div>
+
+        <div class="row" style="margin-top:10px; justify-content:flex-start">
+          <button class="btn" id="btn_${s.key}">Sacar foto</button>
+          <button class="btn danger" id="rm_${s.key}" disabled>Quitar</button>
+          <input id="file_${s.key}" type="file" accept="image/*" capture="environment" />
+        </div>
+
+        <div class="thumb" id="prev_${s.key}">
+          <span class="small">Sin foto</span>
+        </div>
+      `;
+      photos.appendChild(div);
+
+      const file = $(`file_${s.key}`);
+      const btn = $(`btn_${s.key}`);
+      const rm  = $(`rm_${s.key}`);
+
+      btn.addEventListener("click", ()=>file.click());
+
+      file.addEventListener("change", async ()=>{
+        const f = file.files && file.files[0];
+        if(!f) return;
+
+        state.textContent = "Procesando foto…";
+        try{
+          const img = await fileToCompressedJpegDataUrl(f, 1600, 0.85);
+          captured[s.key] = img;
+          renderSlot(s.key);
+          invalidatePdf();
+        }catch(e){
+          console.error(e);
+        }
+        updateState();
+      });
+
+      rm.addEventListener("click", ()=>{
+        delete captured[s.key];
+        file.value = "";
+        renderSlot(s.key);
+        invalidatePdf();
+        updateState();
+      });
+    }
+
+    function renderSlot(key){
+      const st = $(`st_${key}`);
+      const prev = $(`prev_${key}`);
+      const rm = $(`rm_${key}`);
+      const has = !!captured[key];
+
+      st.textContent = has ? "OK" : "Falta";
+      st.className = `pill ${has ? "ok" : "bad"}`;
+      rm.disabled = !has;
+
+      prev.innerHTML = has
+        ? `<img alt="foto" src="${captured[key].dataUrlJpeg}">`
+        : `<span class="small">Sin foto</span>`;
+    }
+
+    function updateState(){
+      const ref = refInp.value.trim();
+      const okPhotos = SLOTS.every(s => !!captured[s.key]);
+
+      btnBuild.disabled = !(ref && okPhotos);
+      btnShare.disabled = !pdfBlob;
+      btnDownload.disabled = !pdfBlob;
+
+      if(!ref){ state.textContent = "Falta referencia."; return; }
+      if(!okPhotos){
+        const missing = SLOTS.filter(s => !captured[s.key]).map(s=>s.label).join(", ");
+        state.textContent = "Faltan: " + missing;
+        return;
+      }
+      state.textContent = "Listo. Generá el PDF (1 hoja).";
+    }
+
+    function sanitizeName(s){
+      return s.normalize("NFD")
+        .replace(/[\\u0300-\\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9 _-]+/g, "")
+        .trim()
+        .replace(/\\s+/g, "_")
+        .slice(0,60) || "documentacion";
+    }
+
+    function invalidatePdf(){
+      pdfBlob = null;
+      pdfFile = null;
+      if(pdfUrl){ URL.revokeObjectURL(pdfUrl); pdfUrl = null; }
+      btnShare.disabled = true;
+      btnDownload.disabled = true;
+      fname.textContent = "—";
+    }
+
+    // PDF 1 hoja A4 con 4 fotos (2x2)
+    btnBuild.addEventListener("click", async ()=>{
+      try{
+        btnBuild.disabled = true;
+        state.textContent = "Generando PDF…";
+
+        const ref = refInp.value.trim();
+        const base = sanitizeName(ref);
+        const filename = `DOCS_${base}.pdf`;
+
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF({ orientation:"p", unit:"mm", format:"a4" });
+
+        const pageW = 210, pageH = 297;
+        const margin = 8;
+        const gap = 4;
+
+        const headerH = 16;
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(12);
+        doc.text("Documentación (DNI + Tarjeta Verde)", margin, 10);
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(10);
+        doc.text(`Referencia: ${ref}`, margin, 16);
+
+        const gridX = margin;
+        const gridY = margin + headerH;
+        const gridW = pageW - margin*2;
+        const gridH = pageH - gridY - margin;
+
+        const cellW = (gridW - gap) / 2;
+        const cellH = (gridH - gap) / 2;
+
+        const labelH = 6;
+
+        const placements = [
+          { slot: SLOTS[0], x: gridX,               y: gridY               },
+          { slot: SLOTS[1], x: gridX + cellW + gap, y: gridY               },
+          { slot: SLOTS[2], x: gridX,               y: gridY + cellH + gap },
+          { slot: SLOTS[3], x: gridX + cellW + gap, y: gridY + cellH + gap }
+        ];
+
+        for(const p of placements){
+          const img = captured[p.slot.key];
+          if(!img) continue;
+
+          doc.setDrawColor(180);
+          doc.rect(p.x, p.y, cellW, cellH);
+
+          doc.setFont("helvetica","bold");
+          doc.setFontSize(9);
+          doc.text(p.slot.label, p.x + 2, p.y + 4.5);
+
+          const ix = p.x + 2;
+          const iy = p.y + labelH;
+          const iw = cellW - 4;
+          const ih = cellH - labelH - 2;
+
+          const fit = fitRect(img.w, img.h, iw, ih);
+          const cx = ix + (iw - fit.w)/2;
+          const cy = iy + (ih - fit.h)/2;
+
+          doc.addImage(img.dataUrlJpeg, "JPEG", cx, cy, fit.w, fit.h, undefined, "FAST");
+        }
+
+        pdfBlob = doc.output("blob");
+        pdfUrl = URL.createObjectURL(pdfBlob);
+        pdfFile = new File([pdfBlob], filename, { type:"application/pdf" });
+
+        fname.textContent = filename;
+        state.textContent = "PDF listo (1 hoja con las 4 fotos).";
+        btnShare.disabled = false;
+        btnDownload.disabled = false;
+
+      }catch(err){
+        console.error(err);
+        state.textContent = "Error generando PDF.";
+      }finally{
+        updateState();
+      }
+    });
+
+    btnShare.addEventListener("click", async ()=>{
+      if(!pdfFile) return;
+
+      if(navigator.share && navigator.canShare && navigator.canShare({ files:[pdfFile] })){
+        try{
+          await navigator.share({
+            title: "Documentación",
+            text: "Adjunto PDF (1 hoja) con DNI y Tarjeta Verde",
+            files: [pdfFile],
+          });
+        }catch(e){}
+        return;
+      }
+
+      const msg = encodeURIComponent("Hola, te envío la documentación. Adjunté el PDF como documento.");
+      window.open(`https://wa.me/?text=${msg}`, "_blank");
+      alert("Este navegador no permite compartir archivos directo. Usá 'Descargar PDF' y adjuntalo en WhatsApp como Documento.");
+    });
+
+    btnDownload.addEventListener("click", ()=>{
+      if(!pdfUrl || !pdfFile) return;
+      const a = document.createElement("a");
+      a.href = pdfUrl;
+      a.download = pdfFile.name;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    });
+
+    btnReset.addEventListener("click", ()=>{
+      refInp.value = "";
+      for(const s of SLOTS){
+        delete captured[s.key];
+        const file = $(`file_${s.key}`);
+        if(file) file.value = "";
+        renderSlot(s.key);
+      }
+      invalidatePdf();
+      updateState();
+    });
+
+    refInp.addEventListener("input", ()=>{ invalidatePdf(); updateState(); });
+
+    async function fileToCompressedJpegDataUrl(file, maxDim=1600, quality=0.85){
+      if("createImageBitmap" in window){
+        const bitmap = await createImageBitmap(file);
+        let w = bitmap.width, h = bitmap.height;
+
+        const scale = Math.min(1, maxDim / Math.max(w, h));
+        const tw = Math.round(w * scale);
+        const th = Math.round(h * scale);
+
+        const canvas = document.createElement("canvas");
+        canvas.width = tw;
+        canvas.height = th;
+        const ctx = canvas.getContext("2d", { alpha:false });
+        ctx.drawImage(bitmap, 0, 0, tw, th);
+        bitmap.close && bitmap.close();
+
+        const dataUrlJpeg = canvas.toDataURL("image/jpeg", quality);
+        return { dataUrlJpeg, w: tw, h: th };
+      }
+
+      const dataUrl = await readFileAsDataURL(file);
+      const imgEl = await loadImage(dataUrl);
+
+      let w = imgEl.naturalWidth, h = imgEl.naturalHeight;
+      const scale = Math.min(1, maxDim / Math.max(w, h));
+      const tw = Math.round(w * scale);
+      const th = Math.round(h * scale);
+
+      const canvas = document.createElement("canvas");
+      canvas.width = tw;
+      canvas.height = th;
+      const ctx = canvas.getContext("2d", { alpha:false });
+      ctx.drawImage(imgEl, 0, 0, tw, th);
+
+      const dataUrlJpeg = canvas.toDataURL("image/jpeg", quality);
+      return { dataUrlJpeg, w: tw, h: th };
+    }
+
+    function readFileAsDataURL(file){
+      return new Promise((res, rej)=>{
+        const fr = new FileReader();
+        fr.onload = ()=>res(fr.result);
+        fr.onerror = rej;
+        fr.readAsDataURL(file);
+      });
+    }
+
+    function loadImage(src){
+      return new Promise((res, rej)=>{
+        const img = new Image();
+        img.onload = ()=>res(img);
+        img.onerror = rej;
+        img.src = src;
+      });
+    }
+
+    function fitRect(imgW, imgH, boxW, boxH){
+      const r = Math.min(boxW / imgW, boxH / imgH);
+      return { w: imgW * r, h: imgH * r };
+    }
+
+    updateState();
+
+    // PWA: botón instalar
+    let deferredPrompt = null;
+    const btnInstall = $("btnInstall");
+
+    window.addEventListener("beforeinstallprompt", (e)=>{
+      e.preventDefault();
+      deferredPrompt = e;
+      btnInstall.style.display = "";
+    });
+
+    btnInstall.addEventListener("click", async ()=>{
+      if(!deferredPrompt) return;
+      btnInstall.disabled = true;
+      await deferredPrompt.prompt();
+      deferredPrompt = null;
+      btnInstall.style.display = "none";
+      btnInstall.disabled = false;
+    });
+
+    // Service Worker
+    if("serviceWorker" in navigator){
+      navigator.serviceWorker.register("./sw.js").catch(()=>{});
+    }
+  </script>
+</body>
+</html>
